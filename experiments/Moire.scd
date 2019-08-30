@@ -17,7 +17,6 @@ SynthDef.new(\delayfilter, {
 v = Synth.new(\delayfilter, [\freq, 110]);
 
 (
-// recursive application of delay.
 {
 	z = EnvGen.ar(Env.perc(0.01, 1.5), doneAction: Done.freeSelf)*BrownNoise.ar;
 	90.do{|i| z = DelayN.ar(z, (i+1)/440, 1.5, 0.5, z);} ;
