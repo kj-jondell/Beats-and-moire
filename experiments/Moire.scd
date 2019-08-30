@@ -1,4 +1,4 @@
-s.boot;
+s.reboot;
 s.options.memSize = 65536; //måste köras annars vill inte noiser spela
 
 (
@@ -14,20 +14,25 @@ SynthDef.new(\delayfilter, {
 ).add;
 )
 
-v = Synth.new(\delayfilter, [\freq, 110]);
-
 (
 {
-	z = EnvGen.ar(Env.perc(0.01, 1.5), doneAction: Done.freeSelf)*BrownNoise.ar;
-	90.do{|i| z = DelayN.ar(z, (i+1)/440, 1.5, 0.5, z);} ;
-	z;
+	z = WhiteNoise.ar(0.5);
+	q =  WhiteNoise.ar(0.5);
+	l = DelayN.ar(z, 3, 1/(390), 0.45);
+	30.do{|i| l = DelayN.ar(z, 3, (i+1)/(390), 0.15, l);} ;
+	15.do{|i| q = DelayN.ar(q, 3, (i+1)/(385), 0.45, q);} ;
+	//[l, q];
+	l;
 }.play
 )
 
 (
 {
-	z = SinOsc.ar(440);
-	30.do{|i| z = SinOsc.ar(i*440, 0, 1/(i+1), z);};
-	z;
-}.play;
+	z = WhiteNoise.ar(0.5);
+	q =  WhiteNoise.ar(0.5);
+	p = 10;
+	p.do{|i| z = DelayN.ar(z, 3, (i+1)/(390), 0.45, z);} ;
+	p.do{|i| q = DelayN.ar(q, 3, (i+1)/(385), 0.45, q);} ;
+	[z, q];
+}.play
 )
