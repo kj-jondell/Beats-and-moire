@@ -32,10 +32,11 @@ SynthDef.new(\delayfilter, {
 	z = WhiteNoise.ar(0.5);
 	q =  WhiteNoise.ar(0.5);
 	p = 20;
-	~mult = 2000;
-	p.do{|i| z = DelayN.ar(z, 3, (1+i)/(390+SinOsc.kr(2501, mul:~mult)), 0.5, z);} ;
-	p.do{|i| q = DelayN.ar(q, 3, (1+i)/(385+SinOsc.kr(2500, mul:~mult)), 0.5, q);} ;
-	[z, q];
+	~mult = 5000;
+	p.do{|i| z = DelayN.ar(z, 3, (1+i)/(390+SinOsc.kr(2550, mul:~mult)), 0.5, z);} ;
+	p.do{|i| q = DelayN.ar(q, 3, (1+i)/(390+SinOsc.kr(2500, mul:~mult)), 0.5, q);} ;
+	(z+q)!2;
+	[z,q];
 }.play
 )
 (
