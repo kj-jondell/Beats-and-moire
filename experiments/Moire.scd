@@ -32,13 +32,25 @@ SynthDef.new(\delayfilter, {
 	z = WhiteNoise.ar(0.5);
 	q =  WhiteNoise.ar(0.5);
 	p = 20;
-	~mult = 5000;
-	p.do{|i| z = DelayN.ar(z, 3, (1+i)/(390+SinOsc.kr(2550, mul:~mult)), 0.5, z);} ;
-	p.do{|i| q = DelayN.ar(q, 3, (1+i)/(390+SinOsc.kr(2500, mul:~mult)), 0.5, q);} ;
+	~mult = 650;
+	p.do{|i| z = DelayN.ar(z, 3, (1+i)/(440+SinOsc.kr(1000 + XLine.kr(1, 1000, 60, 1), mul:~mult)), 1, z);} ;
+	p.do{|i| q = DelayN.ar(q, 3, (1+i)/(439+SinOsc.kr(1000 + XLine.kr(1, 1000, 60, 1), mul:~mult)), 1, q);} ;
 	(z+q)!2;
 	[z,q];
+//	[z,z];
 }.play
 )
+
+(
+{
+	b = Buffer.alloc(s, s.sampleRate);
+	q = WhiteNoise.ar(0.5);
+	z = q + MultiTap.ar([1/(440+SinOsc.kr(2500, mul: 22)), 2/(440+SinOsc.kr(2500, mul: 22)), 3/(440+SinOsc.kr(2500, mul: 22)), 4/(440+SinOsc.kr(2500, mul: 22)), 5/(440+SinOsc.kr(2500, mul: 22)), 6/(440+SinOsc.kr(2500, mul: 22))], [1, 1, 1, 1, 1, 1], q, bufnum: b.bufnum);
+	[z, z];
+}.play;
+)
+
+
 (
 {
 	z = WhiteNoise.ar(0.5);
@@ -47,5 +59,18 @@ SynthDef.new(\delayfilter, {
 	p.do{|i| z = BufDelayN.ar(z, 3, (1+i)/(390), 0.45, z);} ;
 	p.do{|i| q = BufDelayN.ar(q, 3, (1+i)/(385), 0.45, q);} ;
 	[z, q];
+}.play
+)
+
+(
+{
+	z = Saw.ar(100,mul:0.5);
+	q =  Saw.ar(100,mul:0.5);
+	p = 10;
+	p.do{|i| z = DelayN.ar(z, 3, (1+i)/(55+SinOsc.kr(20, mul:30)), 0.95**(i*2), z);} ;
+	p.do{|i| q = DelayN.ar(q, 3, (1+i)/(54.75+SinOsc.kr(20, mul:30)), 0.95**(i*2), q);} ;
+	(z+q)!2;
+	[z,q];
+//	[z,z];
 }.play
 )
