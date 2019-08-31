@@ -1,4 +1,5 @@
-s.reboot;
+s.boot;
+s.quit;
 s.options.memSize = 65536; //måste köras annars vill inte noiser spela
 
 (
@@ -30,9 +31,9 @@ SynthDef.new(\delayfilter, {
 {
 	z = WhiteNoise.ar(0.5);
 	q =  WhiteNoise.ar(0.5);
-	p = 10;
-	p.do{|i| z = DelayN.ar(z, 3, (i+1)/(390), 0.45, z);} ;
-	p.do{|i| q = DelayN.ar(q, 3, (i+1)/(385), 0.45, q);} ;
+	p = 7;
+	p.do{|i| z = DelayN.ar(z, 3, (1+i)/(390), 0.45, z);} ;
+	p.do{|i| q = DelayN.ar(q, 3, (1+i)/(385), 0.45, q);} ;
 	[z, q];
 }.play
 )
