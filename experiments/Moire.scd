@@ -28,15 +28,31 @@ SynthDef.new(\delayfilter, {
 )
 
 (
+SynthDef.new(\moirebeats, {
+	|num = 15, inL, inR, freq =440|
+	var outL = PinkNoise.ar(0.5);
+	var outR = PinkNoise.ar(0.5);
+	p = 15;
+	p.do{|i| outL = DelayC.ar(outL, 3, (1+i)/(freq), 0.7**i, outL);} ;
+	p.do{|i| outR = DelayC.ar(outR, 3, (1+i)/(freq), 0.7**i, outR);} ;
+	Out.ar(0, (Balance2.ar(outL,outR,0,1)));
+}).add;
+)
+
+x = Synth.new(\moirebeats, [\inL,0,\inR,0]);
+
+
+(
 {
-	z = WhiteNoise.ar(0.5);
-	q =  WhiteNoise.ar(0.5);
-	p = 20;
-	~mult = 650;
-	p.do{|i| z = DelayN.ar(z, 3, (1+i)/(440+SinOsc.kr(1000 + XLine.kr(1, 1000, 60, 1), mul:~mult)), 1, z);} ;
-	p.do{|i| q = DelayN.ar(q, 3, (1+i)/(439+SinOsc.kr(1000 + XLine.kr(1, 1000, 60, 1), mul:~mult)), 1, q);} ;
+	z = PinkNoise.ar(0.25);
+	q = PinkNoise.ar(0.25);
+	p = 15;
+	~mult = 550;
+	//SinOsc.kr(XLine.kr(550, 1700, 60, 1), mul:~mult)
+	p.do{|i| z = DelayC.ar(z, 3, (1+i)/(XLine.kr(150, 1700, 60, 1)), 0.98**i, z);} ;
+	p.do{|i| q = DelayC.ar(q, 3, (1+i)/(XLine.kr(450, 1700, 60, 1)), 0.98**i, q);} ;
 	(z+q)!2;
-	[z,q];
+	[Normalizer.ar(z),Normalizer.ar(q)];
 //	[z,z];
 }.play
 )
