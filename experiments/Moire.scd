@@ -44,18 +44,38 @@ x = Synth.new(\moirebeats, [\inL,0,\inR,0]);
 
 (
 {
+
+
 	z = PinkNoise.ar(0.25);
 	q = PinkNoise.ar(0.25);
-	p = 15;
-	~mult = 550;
+	p = 25;
+	~mult = 0;
+	~harmonics = 0.5;
 	//SinOsc.kr(XLine.kr(550, 1700, 60, 1), mul:~mult)
-	p.do{|i| z = DelayC.ar(z, 3, (1+i)/(XLine.kr(150, 1700, 60, 1)), 0.98**i, z);} ;
-	p.do{|i| q = DelayC.ar(q, 3, (1+i)/(XLine.kr(450, 1700, 60, 1)), 0.98**i, q);} ;
+	p.do{|i| z = DelayC.ar(z, 3, (1+i)/(440), ~harmonics**i, z);} ;
+	p.do{|i| q = DelayC.ar(q, 3, (1+i)/(440), ~harmonics**i, q);} ;
 	(z+q)!2;
 	[Normalizer.ar(z),Normalizer.ar(q)];
 //	[z,z];
 }.play
 )
+~harmonics = 0.0;
+
+(
+{
+	~freq = 440;
+	SinOsc.ar(~freq, mul: 0.1);
+}.play;
+)
+
+(
+MIDIdef.cc(\slider, {
+	arg val, chan, src;
+	[src, val, chan].postln;
+});
+)
+
+
 
 (
 {
@@ -77,6 +97,9 @@ x = Synth.new(\moirebeats, [\inL,0,\inR,0]);
 	[z, q];
 }.play
 )
+
+MIDIClient.init;
+MIDIClient.sources;
 
 (
 {
