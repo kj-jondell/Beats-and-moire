@@ -7,6 +7,7 @@ SynthDef.new(\noise, {
 	Out.ar(out, sig);
 }).add;
 
+
 //allow frequency modulation (and harmonics index modulation? or as array?)
 SynthDef.new(\interferer, {
 	arg freq = 440, harmonics = 1.0, detune = 1, in_left, in_right;
