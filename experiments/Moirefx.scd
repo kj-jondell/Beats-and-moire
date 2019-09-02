@@ -1,34 +1,21 @@
-s.reboot;
+s.boot;
 (
-SynthDef.new(\modpinks, {
-	arg out;
-	var sig = PinkNoise.ar(0.5);
-	Out.ar(out, sig);
+SynthDef.new(\help, {
+	 arg out=0;
+    Out.ar(out, PinkNoise.ar(0.1));
 }).add;
 )
-Scale.saba.degreeToFreq(0, 440, 1).postln;
 
 (
-MIDIFunc.cc({
-	arg val, num, chan, src;
-	[src, val, chan, num].postln;
-});
+SynthDef.new(\morehelp, { arg out=0, in=0;
+	   var input;
+        input = In.ar(in, 1);
+        Out.ar(out, input);
+}).add;
 )
 
-y = Synth.new(\modpinks, [\out, 2]);
-
-(
-MIDIFunc.cc({
-	arg val, num, chan, src;
-	//[src, val, chan, num].postln;
-	var scale = Scale.majorPentatonic;
-	var degree = val.linlin(0, 127, 0, scale.size*2).round;
-	var frequency = scale.degreeToFreq(degree, 55.0, degree);
-	x.set(\freq, frequency);
-}, ccNum: 16);
-)
-
-s.options.numOutputBusChannels = 4;
-s.options.numInputBusChannels = 4;
-s.reboot;
-s.meter;
+//play noise on the right channel
+x = Synth.new(\help, [\out, 1]);
+y = Synth.new(\morehelp, [\out, 0, \in, 1]);
+//read the input and play it out on the left channel
+Synth.after(x, \morehelp, [\out, 0, \in, 1]);
