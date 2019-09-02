@@ -1,4 +1,4 @@
-/****
+/*****
 Interference/Moiré/Beats midi controller
 
 TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
@@ -6,7 +6,7 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 3.
 
 © Karl Johannes Jondell 2019
-*****/
+******/
 (
 
 //Remove in future
