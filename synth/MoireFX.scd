@@ -7,9 +7,10 @@ SynthDef.new(\noise, {
 	Out.ar(out, sig);
 }).add;
 
+//allow frequency modulation (and harmonics index modulation? or as array?)
 SynthDef.new(\interferer, {
-	arg freq = 440, harmonics = 0.7, detune = 1, in_left, in_right;//, taps = 15;
-	var left = In.ar(in_left, 1), right = In.ar(in_right, 1);
+	arg freq = 440, harmonics = 1.0, detune = 1, in_left, in_right;
+	var left = In.ar(in_left, 1), right = In.ar(in_right, 1); //instead of left + right, make arbitrary number of sources that can be detuned
 	var taps = 8;
 	taps.do{|i| left = DelayC.ar(left, 1, (1+i)/(freq), harmonics**i, left);} ;
 	taps.do{|i| right= DelayC.ar(right, 1, (1+i)/(freq*detune), harmonics**i, right);} ;
@@ -19,12 +20,19 @@ SynthDef.new(\interferer, {
 )
 
 s.options.numAudioBusChannels;
+s.boot;
 
-s.reboot;
-
-y = Synth.new(\interferer, [\in_left, 6, \in_right, 7]);
 (
-x = Synth.new(\noise, [\out, 6]);
-z = Synth.new(\noise, [\out, 7]);
+~sourceGroup = Group.new;
+~fxGroup = Group.after;
+
+y = Synth.new(\interferer, [\in_left, 6, \in_right, 7], ~fxGroup);
+x = Synth.new(\noise, [\out, 6], ~sourceGroup );
+z = Synth.new(\noise, [\out, 7], ~sourceGroup );
 )
-y.set(\freq, 110);
+
+y.set(\freq,57.midicps);
+y.set(\detune, 1.01);
+y.set(\harmonics, 1);
+
+
