@@ -1,3 +1,9 @@
+/****
+Interference/Moiré/Beats midi controller
+© Karl Johannes Jondell 2019
+*****/
+
+
 (
 
 SynthDef.new(\noise, {
