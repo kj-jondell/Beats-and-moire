@@ -27,13 +27,23 @@ SynthDef.new(\Interference, {
 	var left = In.ar(in_left, 1), right = In.ar(in_right, 1); //instead of left + right, make arbitrary number of sources that can be detuned
 	var taps = 12;
     taps.do{|i| left = (DelayC.ar(left, 1, delaytime: (1+i)/(freq), mul: harmonics, add: left));} ;
-	Out.ar([0,1], [Limiter.ar(0.5*(left/(1+(harmonics**1.35)*2.45)))]); 
+    taps.do{|i| right = (DelayC.ar(right, 1, delaytime: (1+i)/(freq+detune), mul: harmonics, add: right));} ;
+	Out.ar([3,4], [Limiter.ar(0.5*((left+right)/(1+(harmonics**1.35)*2.45)))]); 
+}).add;
+
+SynthDef.new(\Envelopper, {
+    arg rel = 0.5, in_left, in_right;
+    var left = In.ar(in_left, 1);
+    var envsig = EnvGen.kr(Env.perc(releaseTime:rel), doneAction: Done.freeSelf);
+    Out.ar([0,1], [left*envsig]!2)
 }).add;
 
 )
 
 s.options.numAudioBusChannels;
 s.boot;
+s.options.memSize = 65536; //Must be run before playing
+
 
 (
 ~sourceGroup = Group.new;
@@ -43,6 +53,16 @@ y = Synth.new(\Interference, [\harmonics, 0.0, \in_left, 6, \in_right, 7], ~fxGr
 x = Synth.new(\noise, [\out, 6], ~sourceGroup );
 z = Synth.new(\noise, [\out, 7], ~sourceGroup );
 )
+
+(
+MIDIFunc.cc({
+    arg val, num, chan, src;
+    [val,num,chan,src].postln;
+    if(val==127, {Synth.after(y,\Envelopper, [\rel, 2, \in_left, 3, \in_right, 4], ~fxGroup);});
+
+}, ccNum: 32)
+)
+s.queryAllNodes() //Post node tree
 
 y.set(\freq,32.midicps);
 y.set(\detune, 1.01);
@@ -56,7 +76,7 @@ MIDIFunc.cc({
 
 MIDIFunc.cc({
 	arg val, num, chan, src;
-	y.set(\freq, val.linlin(0,127, 24, 64).midicps);
+	y.set(\freq, val.linlin(0,127, 10, 64).midicps);
 }, ccNum: 16);
 
 )
