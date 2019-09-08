@@ -56,7 +56,7 @@ MIDIFunc.cc({
 
 MIDIFunc.cc({
 	arg val, num, chan, src;
-	y.set(\degree, val.linlin(0,127, 10, 32));
+	y.set(\freq, val.linlin(0,127, 24, 64).midicps);
 }, ccNum: 16);
 
 )
