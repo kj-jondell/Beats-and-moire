@@ -10,12 +10,11 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 MIDIIn.connectAll;
 
 (
-
 //Remove in future
 SynthDef.new(\noise, {
-	arg out;
+	arg out, freq=52;
 	var sig;
-	sig = WhiteNoise.ar(1.0);
+	sig = WhiteNoise.ar(mul: 1.0);
 	Out.ar(out, sig);
 }).add;
 
@@ -28,14 +27,16 @@ SynthDef.new(\Interference, {
 	var taps = 12;
     taps.do{|i| left = (DelayC.ar(left, 1, delaytime: (1+i)/(freq), mul: harmonics, add: left));} ;
     taps.do{|i| right = (DelayC.ar(right, 1, delaytime: (1+i)/(freq+detune), mul: harmonics, add: right));} ;
-	Out.ar([3,4], [Limiter.ar(0.5*((left+right)/(1+(harmonics**1.35)*2.45)))]); 
+	Out.ar([0,1], [Limiter.ar(0.5*((left)/(1+(harmonics**1.35)*2.45))),Limiter.ar(0.5*((right)/(1+(harmonics**1.35)*2.45)))]); 
 }).add;
 
 SynthDef.new(\Envelopper, {
-    arg rel = 0.5, in_left, in_right;
+    arg rel = 0.5, in_left=6, in_right = 7;
     var left = In.ar(in_left, 1);
+    var right = In.ar(in_right, 1);
+
     var envsig = EnvGen.kr(Env.perc(releaseTime:rel), doneAction: Done.freeSelf);
-    Out.ar([0,1], [left*envsig]!2)
+    Out.ar([3,4], [left*envsig, right*envsig])
 }).add;
 
 )
@@ -49,7 +50,7 @@ s.options.memSize = 65536; //Must be run before playing
 ~sourceGroup = Group.new;
 ~fxGroup = Group.after;
 
-y = Synth.new(\Interference, [\harmonics, 0.0, \in_left, 6, \in_right, 7], ~fxGroup);
+y = Synth.new(\Interference, [\harmonics, 0.0, \in_left, 3, \in_right, 4], ~fxGroup);
 x = Synth.new(\noise, [\out, 6], ~sourceGroup );
 z = Synth.new(\noise, [\out, 7], ~sourceGroup );
 )
@@ -57,12 +58,21 @@ z = Synth.new(\noise, [\out, 7], ~sourceGroup );
 (
 MIDIFunc.cc({
     arg val, num, chan, src;
-    [val,num,chan,src].postln;
-    if(val==127, {Synth.after(y,\Envelopper, [\rel, 2, \in_left, 3, \in_right, 4], ~fxGroup);});
+    if(val==127, {Synth.before(y,\Envelopper, [\rel, 1, \in_left, 6, \in_right, 7], ~fxGroup);});
 
 }, ccNum: 32)
 )
 s.queryAllNodes() //Post node tree
+s.boot
+
+(
+Pbind(\instrument, \Envelopper,
+\rel, Pseq([0.25,0.25,0.5], inf),
+\in_left, 6,
+\in_right, 7,
+\group, ~fxGroup
+).play;
+)
 
 y.set(\freq,32.midicps);
 y.set(\detune, 1.01);
@@ -76,7 +86,9 @@ MIDIFunc.cc({
 
 MIDIFunc.cc({
 	arg val, num, chan, src;
-	y.set(\freq, val.linlin(0,127, 10, 64).midicps);
+	y.set(\freq, val.linlin(0,127, 24, 64).midicps);
+    x.set(\freq,6+val.linlin(0,127, 10, 64).midicps);
+    z.set(\freq,6+val.linlin(0,127, 10, 64).midicps);
 }, ccNum: 16);
 
 )
