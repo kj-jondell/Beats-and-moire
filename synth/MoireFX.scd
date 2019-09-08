@@ -7,13 +7,15 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 
 © Karl Johannes Jondell 2019
 ******/
+MIDIIn.connectAll;
+
 (
 
 //Remove in future
 SynthDef.new(\noise, {
 	arg out;
 	var sig;
-	sig = PinkNoise.ar(0.5);
+	sig = WhiteNoise.ar(1.0);
 	Out.ar(out, sig);
 }).add;
 
@@ -23,10 +25,9 @@ SynthDef.new(\noise, {
 SynthDef.new(\Interference, {
 	arg freq = 440, harmonics = 1.0, detune = 1, in_left, in_right;
 	var left = In.ar(in_left, 1), right = In.ar(in_right, 1); //instead of left + right, make arbitrary number of sources that can be detuned
-	var taps = 8;
-	taps.do{|i| left = DelayC.ar(left, 1, (1+i)/(freq), harmonics**i, left);} ;
-	taps.do{|i| right= DelayC.ar(right, 1, (1+i)/(freq*detune), harmonics**i, right);} ;
-	Out.ar([0,1], [Limiter.ar((left+right)/(500*harmonics))!2]); //TODO: fix amplitude over range of harmonic-modulator
+	var taps = 12;
+    taps.do{|i| left = (DelayC.ar(left, 1, delaytime: (1+i)/(freq), mul: harmonics, add: left));} ;
+	Out.ar([0,1], [Limiter.ar(0.5*(left/(1+(harmonics**1.35)*2.45)))]); 
 }).add;
 
 )
@@ -38,13 +39,25 @@ s.boot;
 ~sourceGroup = Group.new;
 ~fxGroup = Group.after;
 
-y = Synth.new(\Interference, [\in_left, 6, \in_right, 7], ~fxGroup);
+y = Synth.new(\Interference, [\harmonics, 0.0, \in_left, 6, \in_right, 7], ~fxGroup);
 x = Synth.new(\noise, [\out, 6], ~sourceGroup );
 z = Synth.new(\noise, [\out, 7], ~sourceGroup );
 )
 
-y.set(\freq,57.midicps);
+y.set(\freq,32.midicps);
 y.set(\detune, 1.01);
-y.set(\harmonics, 0.1);
+y.set(\harmonics, 0.9);
+y.set(\scale, Scale.majorPentatonic);
+(
+MIDIFunc.cc({
+	arg val, num, chan, src;
+	y.set(\harmonics, val.linlin(0,127, 0.0, 1));
+}, ccNum: 0);
 
+MIDIFunc.cc({
+	arg val, num, chan, src;
+	y.set(\degree, val.linlin(0,127, 10, 32));
+}, ccNum: 16);
+
+)
 
