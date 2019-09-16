@@ -52,7 +52,7 @@ MIDIFunc.cc({
 MIDIFunc.cc({
 	arg val, num, chan, src;
 	//[src, val, chan, num].postln;
-	var scale = Scale.majorPentatonic;
+	var scale = Scale.minorPentatonic;
 	var degree = val.linlin(0, 127, 0, scale.size*3).round;
 	var frequency = scale.degreeToFreq(degree, 55.0, -1);
 	x.set(\freq, frequency);

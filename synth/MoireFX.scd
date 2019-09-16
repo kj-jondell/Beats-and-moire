@@ -64,17 +64,18 @@ MIDIFunc.cc({
 )
 s.queryAllNodes() //Post node tree
 s.boot
-
+TempoClock.default.tempo = 120/60
 (
-Pbind(\instrument, \Envelopper,
-\rel, Pseq([0.25,0.25,0.5], inf),
+Pbindef(\noisedef, \instrument, \Envelopper,
+\rel, Pseq([0.1], inf),
+\dur, Pseq([0.25,0.25,0.25/3],inf),
 \in_left, 6,
 \in_right, 7,
 \group, ~fxGroup
 ).play;
 )
 
-y.set(\freq,32.midicps);
+y.set(\freq,37.midicps);
 y.set(\detune, 1.01);
 y.set(\harmonics, 0.9);
 y.set(\scale, Scale.majorPentatonic);
@@ -87,8 +88,8 @@ MIDIFunc.cc({
 MIDIFunc.cc({
 	arg val, num, chan, src;
 	y.set(\freq, val.linlin(0,127, 24, 64).midicps);
-    x.set(\freq,6+val.linlin(0,127, 10, 64).midicps);
-    z.set(\freq,6+val.linlin(0,127, 10, 64).midicps);
+//    x.set(\freq,6+val.linlin(0,127, 10, 64).midicps);
+//   z.set(\freq,6+val.linlin(0,127, 10, 64).midicps);
 }, ccNum: 16);
 
 )
