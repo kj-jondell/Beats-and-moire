@@ -1,4 +1,4 @@
-s.boot
+s.reboot
 s.options.memSize = 65536; //måste köras annars vill inte noiser spela
 s.options.numInputBusChannels = 12;
 s.options.numOutputBusChannels = 12;
@@ -16,34 +16,22 @@ MIDIdef.cc(\test1, {
 
 (
     SynthDef.new(\FM_synth, {
-        arg  
+        arg args;
+        var modulator = SinOsc.ar(freq: 440.0,  mul: 20,  add: 220.0);
+        var carrier;
+        25.do({
+            arg i; 
+            modulator = SinOsc.ar(modulator, mul: 15*(1/i), add: 110);
+        });
+        carrier = SinOsc.ar(modulator)*EnvGen.kr(Env.perc, doneAction: Done.freeSelf);
+        Out.ar(0, carrier!2);
     }).add;
 )
 
-
-
 (
-    ( 
-        SynthDef.new(\Modulator, {
-            arg mod_bus, bus = 3, mod_index = 500, mod_freq = 220;
-            var signal = SinOsc.ar(mod_freq, mul: mod_index);
-            Out.ar(bus, signal);
-        }).add;
-    );
-
-    (
-        SynthDef.new(\Carrier, {
-            arg mod_bus, out_bus = 0, carrier_freq = 0, mod_index = 1;
-            var mod_signal = In.ar(mod_bus);
-            var signal = SinOsc.ar(mod_signal, mul: mod_index, add: carrier_freq);
-            Out.ar(out_bus, signal!2);
-        }).add;
-    );
+Pbindef.new(\sequencer, 
+    \instrument, \FM_synth,
+    \dur, Pseq([0.25, 0.25, 0.15], inf)
+).play;
 )
 
-( 
-    var busnum = 3;
-    y = Synth.new(\Modulator, [\bus, busnum]);
-    x = Synth.after(y, \Carrier, [\mod_bus, busnum, \out_bus, 4, \mod_index, 320, \carrier_freq, 440]);
-    z = Synth.after(x, \Carrier, [\mod_bus, 4])
-)
