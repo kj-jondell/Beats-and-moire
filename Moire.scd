@@ -9,7 +9,7 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 © Karl Johannes Jondell 2019
 ******/
 MIDIIn.connectAll;
-s.reboot;
+s.boot;
 
 (
 //Remove in future
@@ -53,20 +53,20 @@ SynthDef.new(\fm, {
 ~fxGroup = Group.after;
 
 y = Synth.new(\Interference, [\harmonics, 0.0, \in_left, 3, \in_right, 4], ~fxGroup);
-x = Synth.new(\noise, [\out, 6], ~sourceGroup );
-z = Synth.new(\noise, [\out, 7], ~sourceGroup );
+x = Synth.new(\noise, [\out, 3], ~sourceGroup );
+z = Synth.new(\noise, [\out, 4], ~sourceGroup );
 p = Synth.new(\fm, ~sourceGroup);
 )
 
 s.meter;
-TempoClock.default.tempo = 120/60;
-p.set(\modfreq, 0.03);
-p.set(\modindex, 90);
-p.set(\freq, 50.midicps);
+TempoClock.default.tempo = 60/60;
+p.set(\modfreq, 20);
+p.set(\modindex, 20);
+p.set(\freq, 43.midicps);
 s.boot;
 s.options.memSize = 64000;
 
-(
+/*(
 Pbindef(\noisedef, \instrument, \Envelopper,
 \rel, Pseq.new([1.5], inf),
 \dur, Pseq.new([1,0.5,2,1/3],inf),
@@ -74,10 +74,10 @@ Pbindef(\noisedef, \instrument, \Envelopper,
 \in_right, 7,
 \group, ~fxGroup
 ).play;
-)
+)*/
 
-y.set(\detune, 1.9);
-y.set(\harmonics, 0.95);
+y.set(\detune, 1.5);
+y.set(\harmonics, 0.8);
 y.set(\scale, Scale.majorPentatonic);
 
 
