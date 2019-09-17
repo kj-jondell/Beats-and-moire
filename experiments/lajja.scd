@@ -16,14 +16,14 @@ MIDIdef.cc(\test1, {
 
 (
     SynthDef.new(\FM_synth, {
-        arg args;
-        var modulator = SinOsc.ar(freq: 440.0,  mul: 20,  add: 220.0);
+        arg freq = 320, mod_index = 100, modulation_array = #[110,320,220];
+        var modulator = SinOsc.ar(freq: 246.0,  mul: mod_index,  add: modulation_array[0]);
         var carrier;
-        25.do({
+        20.do({
             arg i; 
-            modulator = SinOsc.ar(modulator, mul: 15*(1/i), add: 110);
+            modulator = SinOsc.ar(modulator, mul: mod_index, add: modulation_array[i+1]);
         });
-        carrier = SinOsc.ar(modulator)*EnvGen.kr(Env.perc, doneAction: Done.freeSelf);
+        carrier = SinOsc.ar(SinOsc.ar(modulator, mul: mod_index, add: freq))*EnvGen.kr(Env.perc, doneAction: Done.freeSelf);
         Out.ar(0, carrier!2);
     }).add;
 )
@@ -31,7 +31,9 @@ MIDIdef.cc(\test1, {
 (
 Pbindef.new(\sequencer, 
     \instrument, \FM_synth,
-    \dur, Pseq([0.25, 0.25, 0.15], inf)
+    \dur, Pseq([0.25, 0.25, 0.15], inf),
+    \scale, Scale.majorPentatonic,
+    \degree, Pseq([1,2,3,4], inf)
 ).play;
 )
 
