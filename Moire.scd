@@ -9,6 +9,7 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 © Karl Johannes Jondell 2019
 ******/
 MIDIIn.connectAll;
+s.reboot;
 
 (
 //Remove in future
@@ -59,9 +60,9 @@ p = Synth.new(\fm, ~sourceGroup);
 
 s.meter;
 TempoClock.default.tempo = 120/60;
-p.set(\modfreq, 0.03;
-p.set(\modindex, 60);
-p.set(\freq, 43.midicps);
+p.set(\modfreq, 0.03);
+p.set(\modindex, 90);
+p.set(\freq, 50.midicps);
 s.boot;
 s.options.memSize = 64000;
 
