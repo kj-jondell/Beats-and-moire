@@ -21,7 +21,8 @@ SynthDef.new(\noise, {
 //Allow frequency modulation (and harmonics index modulation? or as array?)
 //Output-bus should be selectable
 SynthDef.new(\Interference, {
-	arg freq = 440, harmonics = 1.0, in_left, in_right;
+	arg freq_bus = 1, harmonics = 1.0, in_left, in_right;
+    var freq = In.kr(freq_bus);
 	var left = In.ar(in_left, 1), right = In.ar(in_right, 1); //instead of left + right, make arbitrary number of sources that can be detuned
 	var taps = 12;
     taps.do{|i| left = (DelayC.ar(left, 1, delaytime: (1+i)/(freq), mul: harmonics, add: left));} ;
@@ -58,12 +59,12 @@ p = Synth.new(\fm, ~sourceGroup);
 s.meter;
 TempoClock.default.tempo = 60/60;
 p.set(\modfreq, 0.1);
-p.set(\modindex, 1);
+p.set(\modindex, 0);
 p.set(\freq, 30.midicps);
 s.boot;
 s.options.memSize = 64000;
 
-y.set(\detune, 1);
+y.set(\detune, 2.5);
 y.set(\harmonics, 1);
 y.set(\scale, Scale.majorPentatonic);
 
@@ -79,7 +80,7 @@ r.stop;
 
 (
     var midi, dur;
-    midi = Pseq([60, 72, 71, 67, 69, 71, 72, 60, 69, 67]-30, 5).asStream;
+    midi = Pseq([60, 72, 71, 67, 69, 71, 72, 60, 69, 67]-24, 5).asStream;
     dur = Pseq([2, 2, 1, 0.5, 0.5, 1, 1, 2, 2, 3], 5).asStream;
     r = Task({
         var delta;
