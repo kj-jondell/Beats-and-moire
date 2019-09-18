@@ -3,7 +3,7 @@ Interference/Moiré/Beats midi controller
 
 TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 2. Sound in from Soundflower.......!
-3.
+3. Buses...
 
 © Karl Johannes Jondell 2019
 ***/
