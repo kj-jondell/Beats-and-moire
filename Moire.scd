@@ -1,5 +1,4 @@
-
-/*****
+/*
 Interference/Moiré/Beats midi controller
 
 TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
@@ -7,10 +6,9 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 3.
 
 © Karl Johannes Jondell 2019
-******/
+***/
 MIDIIn.connectAll;
 s.boot;
-
 (
 //Remove in future
 SynthDef.new(\noise, {
@@ -23,12 +21,11 @@ SynthDef.new(\noise, {
 //Allow frequency modulation (and harmonics index modulation? or as array?)
 //Output-bus should be selectable
 SynthDef.new(\Interference, {
-	arg freq_mod = 1, harmonics = 1.0, detune = 1, in_left, in_right;
-    var freq = In.kr(freq_mod, 1);
+	arg freq = 440, harmonics = 1.0, in_left, in_right;
 	var left = In.ar(in_left, 1), right = In.ar(in_right, 1); //instead of left + right, make arbitrary number of sources that can be detuned
 	var taps = 12;
     taps.do{|i| left = (DelayC.ar(left, 1, delaytime: (1+i)/(freq), mul: harmonics, add: left));} ;
-    taps.do{|i| right = (DelayC.ar(right, 1, delaytime: (1+i)/(freq+detune), mul: harmonics, add: right));} ;
+    taps.do{|i| right = (DelayC.ar(right, 1, delaytime: (1+i)/(freq+\detune.kr(1)), mul: harmonics, add: right));} ;
 	Out.ar([0,1], [Limiter.ar(0.5*((left)/(1+(harmonics**1.35)*2.45))),Limiter.ar(0.5*((right)/(1+(harmonics**1.35)*2.45)))]); 
 }).add;
 
@@ -47,7 +44,7 @@ SynthDef.new(\fm, {
 }).add;
 
 )
-
+ 
 (
 ~sourceGroup = Group.new;
 ~fxGroup = Group.after;
@@ -60,33 +57,39 @@ p = Synth.new(\fm, ~sourceGroup);
 
 s.meter;
 TempoClock.default.tempo = 60/60;
-p.set(\modfreq, 20);
-p.set(\modindex, 20);
-p.set(\freq, 43.midicps);
+p.set(\modfreq, 0.1);
+p.set(\modindex, 1);
+p.set(\freq, 30.midicps);
 s.boot;
 s.options.memSize = 64000;
 
-/*(
-Pbindef(\noisedef, \instrument, \Envelopper,
-\rel, Pseq.new([1.5], inf),
-\dur, Pseq.new([1,0.5,2,1/3],inf),
-\in_left, 6,
-\in_right, 7,
-\group, ~fxGroup
-).play;
-)*/
-
-y.set(\detune, 1.5);
-y.set(\harmonics, 0.8);
+y.set(\detune, 1);
+y.set(\harmonics, 1);
 y.set(\scale, Scale.majorPentatonic);
 
 
-(
-    var r;
-    r = Routine {
+var r;
+r = Routine {
     {
-        p.set(\freq, (25.rand+15).midicps);
+        p.set(\freq, (25.rand+35).midicps);
         1.wait;
     }.loop;
-    }.play;
+}.play;
+r.stop;
+
+(
+    var midi, dur;
+    midi = Pseq([60, 72, 71, 67, 69, 71, 72, 60, 69, 67]-30, 5).asStream;
+    dur = Pseq([2, 2, 1, 0.5, 0.5, 1, 1, 2, 2, 3], 5).asStream;
+    r = Task({
+        var delta;
+        while {
+            delta = dur.next;
+            delta.notNil;
+        } {
+            p.set(\freq, midi.next.midicps);
+            delta.yield;
+        }
+    }).play(quant: TempoClock.default.beats + 1.0);
 )
+r.stop;
