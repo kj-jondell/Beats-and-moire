@@ -8,7 +8,8 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 © Karl Johannes Jondell 2019
 ***/
 MIDIIn.connectAll;
-s.boot;
+s.reboot;
+s.options.device = "Soundflower (64ch)";
 (
 //Remove in future
 SynthDef.new(\noise, {
@@ -18,7 +19,6 @@ SynthDef.new(\noise, {
 	Out.ar(out, sig);
 }).add;
 
-//Allow frequency modulation (and harmonics index modulation? or as array?)
 //Output-bus should be selectable
 SynthDef.new(\Interference, {
 	arg freq_bus = 1, harmonics = 1.0, in_left, in_right;
@@ -27,7 +27,7 @@ SynthDef.new(\Interference, {
 	var taps = 12;
     taps.do{|i| left = (DelayC.ar(left, 1, delaytime: (1+i)/(freq), mul: harmonics**(1/(1+i)), add: left));} ;
     taps.do{|i| right = (DelayC.ar(right, 1, delaytime: (1+i)/(freq+\detune.kr(1)), mul: harmonics**(1/(1+i)), add: right));} ;
-	Out.ar([0,1], [Limiter.ar(0.5*((left)/(1+(harmonics**1.35)*2.45))),Limiter.ar(0.5*((right)/(1+(harmonics**1.35)*2.45)))]); 
+	Out.ar([3,4], [Limiter.ar(0.5*((left)/(1+(harmonics**1.35)*2.45))),Limiter.ar(0.5*((right)/(1+(harmonics**1.35)*2.45)))]); 
 }).add;
 
 SynthDef.new(\Envelopper, {
@@ -45,27 +45,28 @@ SynthDef.new(\fm, {
 }).add;
 
 )
- 
+s.queryAllNodes()
+s.meter;
 (
 ~sourceGroup = Group.new;
 ~fxGroup = Group.after;
 
-y = Synth.new(\Interference, [\harmonics, 0.0, \in_left, 3, \in_right, 4], ~fxGroup);
-x = Synth.new(\noise, [\out, 3], ~sourceGroup );
-z = Synth.new(\noise, [\out, 4], ~sourceGroup );
+y = Synth.new(\Interference, [\harmonics, 0.0, \in_left, 0, \in_right, 1], ~fxGroup);
+//x = Synth.new(\noise, [\out, 3], ~sourceGroup );
+//z = Synth.new(\noise, [\out, 4], ~sourceGroup );
 p = Synth.new(\fm, ~sourceGroup);
 )
 
 s.meter;
 TempoClock.default.tempo = 300/60;
 p.set(\modfreq, 0.1);
-p.set(\modindex, 5);
+p.set(\modindex, 90);
 p.set(\freq, 30.midicps);
 s.boot;
 s.options.memSize = 64000;
 
-y.set(\detune, 2.5);
-y.set(\harmonics, 0.4);
+y.set(\detune, 2);
+y.set(\harmonics, 1);
 y.set(\scale, Scale.majorPentatonic);
 
 
