@@ -48,8 +48,8 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 
         leftNoise = Synth.new(\noise, [\out, 3], sourceGroup);
         rightNoise = Synth.new(\noise, [\out, 4], sourceGroup);
-        moireSynth = Synth.new(\Interference, [\harmonics, 0.1, \detune, 1, \in_left, 3, \in_right, 4, \freq, 90], fxGroup);
-        moireBassSynth = Synth.new(\Interference, [\harmonics, 0.1, \detune, 1, \in_left, 3, \in_right, 4, \freq, 45, \out_left, 8, \out_right, 9], fxGroup);
+        moireSynth = Synth.new(\Interference, [\harmonics, 0.1, \detune, 1, \in_left, 3, \in_right, 4, \freq, 87.307, \out_left, 6, \out_right, 7], fxGroup);
+        moireBassSynth = Synth.new(\Interference, [\harmonics, 0.1, \detune, 1, \in_left, 3, \in_right, 4, \freq, 43.654, \out_left, 8, \out_right, 9], fxGroup);
 
         MIDIFunc.noteOn({
             arg vel, note;
@@ -71,3 +71,6 @@ s.reboot;
 s.quit;
 s.options.numInputBusChannels=64;
 s.meter;
+
+OSCFunc.trace(false);
+MIDIdef.freeAll;
