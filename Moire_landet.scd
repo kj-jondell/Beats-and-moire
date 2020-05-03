@@ -36,10 +36,12 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
             var filterLeft = BLowPass4.ar(left, freq*Lag2.kr(velocity.linlin(0,127,2.0,20.0)), Lag2.kr(velocity.linlin(0,127,2.0,4.0)));
             var filterRight = BLowPass4.ar(right, detune*freq*Lag2.kr(velocity.linlin(0,127,2.0,20.0)), Lag2.kr(velocity.linlin(0,127,1.9,3.9)));
             var stretch = velocity.linlin(0,127,1,1.5);
-            //(1-SpecFlatness.kr(FFT(LocalBuf(2048), [left, right]))).poll;
+
             var env = EnvGen.ar(Env.asr(attackTime: attackTime * stretch, sustainLevel: sustainLevel, releaseTime: releaseTime * stretch, curve: -4.0), gate: gate, doneAction: Done.freeSelf);
 
             var output = env*[filterLeft, filterRight]*velocity.linlin(0,127,-15,-6).dbamp;
+
+            //(1-SpecFlatness.kr(FFT(LocalBuf(2048), [left, right]))).poll;
 
             Out.ar(outBus, LeakDC.ar(output)); 
         }).add;
