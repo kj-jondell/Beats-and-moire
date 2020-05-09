@@ -1,6 +1,4 @@
 /***
-Interference/Moiré/Beats midi controller
-
 TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 2. Sound in from Soundflower.......!
 3. Buses...
@@ -41,34 +39,15 @@ TODO: 1. Ampltiude equalization (first, plot amplitude over modulation index)
 
             var output = env*[filterLeft, filterRight]*velocity.linlin(0,127,-15,-6).dbamp;
 
-            //(1-SpecFlatness.kr(FFT(LocalBuf(2048), [left, right]))).poll;
-
             Out.ar(outBus, LeakDC.ar(output)); 
         }).add;
 
         s.sync; 
 
         keys = nil!128;
-
-        //moireSynth = Synth.new(\Interference, [\harmonics, 0.95, \detune, 1, \freq, 87.307]);
-        //moireBassSynth = Synth.new(\Interference, [\harmonics, 0.96, \detune, 1.03, \freq, 43.654, \outBus, 2]);
-
-        //r = Routine.new({
-        //    loop {
-        //        if(harmonics > 0.01){harmonics = harmonics-0.01;};
-        //        moireSynth.set(\harmonics, harmonics);
-        //        moireBassSynth.set(\harmonics, harmonics);
-        //        moireBassSynth.set(\freq, 30.rand+87);
-        //        0.5.yield;
-        //    }
-        //});
-        //r.play;
-
+        
         MIDIFunc.noteOn({
             arg vel, note;
-            //moireBassSynth.set(\freq, note.midicps);
-            //moireBassSynth.set(\freq, note.keyToDegree(justScale, 12).degreeToKey(justScale).midicps);
-            //moireBassSynth.set(\freq, customScale.value(note));
         }, chan: 5);
 
         MIDIFunc.noteOff({
